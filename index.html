@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>matton（マットン）- 本格射撃シミュレーター</title>
+    <meta name="description" content="20種以上の実銃を使った本格射撃ゲーム！アサルトライフル、サブマシンガン、ハンドガンから武器を選び、移動標的、バウンド風船、静止標的の3モードで腕試し。スマホでも快適プレイ可能！">
+    
+    <!-- OGP設定 -->
+    <meta property="og:title" content="matton（マットン）- 本格射撃シミュレーター">
+    <meta property="og:description" content="20種以上の実銃を使った本格射撃ゲーム！アサルトライフル、サブマシンガン、ハンドガンから武器を選び、移動標的、バウンド風船、静止標的の3モードで腕試し。スマホでも快適プレイ可能！">
+    <meta property="og:image" content="ogp.png">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="matton">
+    
+    <!-- Twitter Card設定 -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="matton（マットン）- 本格射撃シミュレーター">
+    <meta name="twitter:description" content="20種以上の実銃を使った本格射撃ゲーム！アサルトライフル、サブマシンガン、ハンドガンから武器を選び、移動標的、バウンド風船、静止標的の3モードで腕試し。スマホでも快適プレイ可能！">
+    <meta name="twitter:image" content="ogp.png">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- OP画面 -->
+        <div id="op-screen" class="screen active">
+            <div class="op-content">
+                <img src="img/logo.png" alt="matton" class="logo-image">
+                <button id="start-btn" class="btn btn-primary">START</button>
+                <div class="instructions">
+                    <h2>操作説明</h2>
+                    <ul>
+                        <li>クリックまたはスペースキーで発射</li>
+                        <li>的の中心に近いほど高得点</li>
+                        <li>反応時間が短いほど高評価</li>
+                        <li>制限時間：60秒</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- モード選択画面 -->
+        <div id="mode-select-screen" class="screen">
+            <div class="mode-select-content">
+                <h2>モード選択</h2>
+                <div class="mode-grid">
+                    <div class="mode-card" data-mode="target">
+                        <div class="mode-icon">🎯</div>
+                        <h3>的撃ちモード</h3>
+                        <p>静止した的を狙って撃つ基本モード</p>
+                    </div>
+                    <div class="mode-card" data-mode="moving">
+                        <div class="mode-icon">🏃</div>
+                        <h3>移動標的モード</h3>
+                        <p>人型ターゲットが横に移動します</p>
+                    </div>
+                    <div class="mode-card" data-mode="bouncing">
+                        <div class="mode-icon">⚽</div>
+                        <h3>バウンドモード</h3>
+                        <p>バウンドするボールを撃って破裂させる</p>
+                    </div>
+                </div>
+                <button id="back-to-op-from-mode-btn" class="btn btn-secondary">戻る</button>
+            </div>
+        </div>
+
+        <!-- 武器選択画面 -->
+        <div id="weapon-select-screen" class="screen">
+            <div class="weapon-select-content">
+                <h2>武器選択</h2>
+                <div id="weapon-categories" class="weapon-categories"></div>
+                <div id="weapon-list" class="weapon-list"></div>
+                <button id="back-to-mode-btn" class="btn btn-secondary">戻る</button>
+            </div>
+        </div>
+
+        <!-- ゲーム画面 -->
+        <div id="game-screen" class="screen">
+            <canvas id="game-canvas"></canvas>
+            <div id="crosshair" class="crosshair"></div>
+            <div id="scope-overlay" class="scope-overlay">
+                <div class="scope-reticle"></div>
+            </div>
+            <div id="hud" class="hud">
+                <div class="hud-item">
+                    <span class="hud-label">残り時間:</span>
+                    <span id="time-remaining">30</span>秒
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">スコア:</span>
+                    <span id="current-score">0</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">反応時間:</span>
+                    <span id="reaction-time">-</span>ms
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">命中率:</span>
+                    <span id="hit-rate">0%</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">クロスヘア:</span>
+                    <div class="crosshair-color-selector">
+                        <button class="crosshair-color-btn" data-color="white" title="白">⚪</button>
+                        <button class="crosshair-color-btn" data-color="yellowgreen" title="黄緑">🟢</button>
+                        <button class="crosshair-color-btn" data-color="magenta" title="マゼンタ">🔴</button>
+                    </div>
+                </div>
+                <div class="hud-item">
+                    <button id="quit-game-btn" class="btn-quit">ゲーム終了</button>
+                </div>
+            </div>
+            <div id="weapon-display" class="weapon-display">
+                <img id="weapon-display-image" src="" alt="" style="display: none;">
+                <div id="weapon-display-name" class="weapon-display-name"></div>
+            </div>
+            <div id="countdown-overlay" class="countdown-overlay">
+                <div id="countdown-number" class="countdown-number">3</div>
+            </div>
+        </div>
+
+        <!-- リザルト画面 -->
+        <div id="result-screen" class="screen">
+            <div class="result-content">
+                <h2>リザルト</h2>
+                <div class="result-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">合計スコア:</span>
+                        <span id="total-score" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">平均反応時間:</span>
+                        <span id="avg-reaction" class="stat-value">-</span>ms
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">最速反応時間:</span>
+                        <span id="fastest-reaction" class="stat-value">-</span>ms
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">命中率:</span>
+                        <span id="result-hit-rate" class="stat-value">0%</span>
+                    </div>
+                </div>
+                <div class="shot-log-section">
+                    <h3>ショットログ</h3>
+                    <div id="shot-log" class="shot-log"></div>
+                </div>
+                <div class="result-buttons">
+                    <button id="retry-btn" class="btn btn-primary">リトライ</button>
+                    <button id="back-to-mode-select-btn" class="btn btn-secondary">モード選択に戻る</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
+
+
